@@ -8,6 +8,7 @@
 #include"Renderer.h"
 
 #include"VertexBuffer.h"
+#include"VertexBufferLayout.h"
 #include"IndexBuffer.h"
 #include"VertexArray.h"
 #include"Shader.h"
@@ -80,33 +81,20 @@ int main(void)
         vb.Unbind();
         ib.Unbind();
 
-
+        Renderer renderer;
         float r = 0.0f;
         float increement = 0.05f;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            GLCall(glClear(GL_COLOR_BUFFER_BIT));
+            renderer.Clear();
 
-            /*
-            //Legacy gl for checking whether OpenGL is working
-            glBegin(GL_TRIANGLES);
-            glVertex2f(-0.5f, -0.5f);
-            glVertex2f( 0.f ,  0.5f);
-            glVertex2f( 0.5f, -0.5f);
-            glEnd();
-            */
-
-            //Binding the object before every draw call 
             shader.Bind();
-            shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.f);
-
-            va.Bind();
-            ib.Bind();
-
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-
+            shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+            
+            //Draw using renderer
+            renderer.Draw(va,ib,shader);
 
             if (r > 1.0f)increement = -0.05f;
             else if (r < 0.f)increement = 0.05f;
