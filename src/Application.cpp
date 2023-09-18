@@ -31,7 +31,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -49,10 +49,10 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, //0 
-             0.5f, -0.5f, 1.0f, 0.0f, //1
-             0.5f,  0.5f, 1.0f, 1.0f, //2
-            -0.5f,  0.5f, 0.0f, 1.0f  //3
+            100.f, 100.f, 0.0f, 0.0f, //0 
+            200.f, 100.f, 1.0f, 0.0f, //1
+            200.f, 200.f, 1.0f, 1.0f, //2
+            100.f, 200.f, 0.0f, 1.0f  //3
         };
 
         unsigned int indices[] = {
@@ -81,7 +81,7 @@ int main(void)
         //Fixing the projection of our window ny default it renders for 1x1 matrix but ours is 4x3
         //Hence use projection matrix
         //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);//As 4x3 window left = -2 : right = 2 : bottom = -1.5 : up = 1.5
-        glm::mat4 proj = glm::ortho(-4.0f, 4.0f, -3.f, 3.f, -1.0f, 1.0f);
+        glm::mat4 proj = glm::ortho(0.f, 960.f, 0.f, 540.f, -1.0f, 1.0f);
 
         std::string filepath = "res/shaders/BasicShader.txt";
         Shader shader(filepath);
@@ -185,4 +185,13 @@ SHADERS program running on GPU
   --Maths::
   1.Matrices(for Transformations)
   2.Vectors
+
+  Projections ::
+  Mapping coordinates in 3D or 2D World/Space to our actual screen
+  (Maths that converts 3D Points in world to 2D Points in the Window of our Screen)
+  ::Normalised Coordinates == Left = -1, Right = 1, Top = 1, Bottom = -1; 
+  ___ 2 Types ___
+  1.Orthographic projection(Usually 2D i.e.farther the object does not get smaller)
+  2.Perspective projection(Usually 3D i.e.farther the object smaller it is)
+
 */
