@@ -87,9 +87,9 @@ int main(void)
 
         //Unbind everything
         va.Unbind();
-        shader.Unbind();
         vb.Unbind();
         ib.Unbind();
+        shader.Unbind();
 
         Renderer renderer;
         float r = 0.0f;
@@ -155,5 +155,21 @@ SHADERS program running on GPU
   this are per draw i.e. if  2 triangles are being made in single draw we cannot noth with different colors
 
   --TEXTURES::
+  2D OR 3D Images applied to the surfaces of a 3D Model
   Image used while we are rendering something
+
+  --BLENDING::
+  Determines how we combine our OUTPUT color with what is already in our target buffer
+  ::OUTPUT = the color we output from our fragemnt shader (known as SOURCE)
+  ::TARGET BUFFER = buffer our fragment shader is drawing to (known as DESTINATION)
+
+  :::Control Blending-
+  == 3 ways :--
+  1.glEnable(GL_BLEND) - glDisable(GL_BLEND)
+  2.glBlendFunc(src,dest)
+     src = how the src RGBA factor is computed (default is GL_ONE)
+     dest = how the dest RGBA facotr is computed (default is GL_ZERO)
+  3.glBlendEquation(mode)
+     mode = how we combine the src and dest
+     Default value is GL_FUNC_ADD (i.e. just adds src and dest)
 */
