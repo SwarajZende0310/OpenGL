@@ -82,12 +82,15 @@ int main(void)
         //Hence use projection matrix
         //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);//As 4x3 window left = -2 : right = 2 : bottom = -1.5 : up = 1.5
         glm::mat4 proj = glm::ortho(0.f, 960.f, 0.f, 540.f, -1.0f, 1.0f);
+        glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(-100.f, 0.f, 0.f));//For camera :: moving camera to right THUS moving object to left
+        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(200.f, 200.f, 0.f));//For Model
+        glm::mat4 mvp = proj * view * model; //(Multiplied in reverse order becuase in OpenGL it is Column Major)
 
         std::string filepath = "res/shaders/BasicShader.txt";
         Shader shader(filepath);
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.f);//Setting the value of fragment shader from CPU
-        shader.SetUniformMat4f("u_MVP", proj);
+        shader.SetUniformMat4f("u_MVP", mvp);
 
         std::string texPath = "res/textures/ChernoLogo.png";
         Texture texture(texPath);
@@ -187,11 +190,18 @@ SHADERS program running on GPU
   2.Vectors
 
   Projections ::
-  Mapping coordinates in 3D or 2D World/Space to our actual screen
+  Mapping coordinates in 3D or 2D World/Space to our actual screen(Converts to Normalised Device Coordinates)
   (Maths that converts 3D Points in world to 2D Points in the Window of our Screen)
   ::Normalised Coordinates == Left = -1, Right = 1, Top = 1, Bottom = -1; 
   ___ 2 Types ___
   1.Orthographic projection(Usually 2D i.e.farther the object does not get smaller)
   2.Perspective projection(Usually 3D i.e.farther the object smaller it is)
+
+  __MODEL VIEW PROJECTION(MVP)__
+  All the 3 terms are individual matrices which are multiplied together (Multiplied in reverse order becuase in OpenGL it is Column Major)
+  This RESULTANT is then multiplied by VERTEX_POSITIONS
+  ::VIEW matrix == represents view of the camera(i.Position,Orientaion of the Camera)
+     Moving the camera to the left is moving all the objects to right
+  ::MODEL matrix == represents the actual objects we are rendering/drawing(i.e.Translation(Position),Rotaion,Scale of our Model)
 
 */
