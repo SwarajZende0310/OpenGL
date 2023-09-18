@@ -17,6 +17,9 @@
 #include"glm/glm.hpp"
 #include"glm/gtc/matrix_transform.hpp"
 
+#include"imgui/imgui.h"
+#include"imgui/imgui_impl_glfw_gl3.h"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -83,14 +86,14 @@ int main(void)
         //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);//As 4x3 window left = -2 : right = 2 : bottom = -1.5 : up = 1.5
         glm::mat4 proj = glm::ortho(0.f, 960.f, 0.f, 540.f, -1.0f, 1.0f);
         glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(-100.f, 0.f, 0.f));//For camera :: moving camera to right THUS moving object to left
-        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(200.f, 200.f, 0.f));//For Model
-        glm::mat4 mvp = proj * view * model; //(Multiplied in reverse order becuase in OpenGL it is Column Major)
+        //glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(200.f, 200.f, 0.f));//For Model
+        //glm::mat4 mvp = proj * view * model; //(Multiplied in reverse order becuase in OpenGL it is Column Major)
+        glm::vec3 translation(200.f, 200.f, 0.f);
 
         std::string filepath = "res/shaders/BasicShader.txt";
         Shader shader(filepath);
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.f);//Setting the value of fragment shader from CPU
-        shader.SetUniformMat4f("u_MVP", mvp);
 
         std::string texPath = "res/textures/ChernoLogo.png";
         Texture texture(texPath);
@@ -104,6 +107,11 @@ int main(void)
         shader.Unbind();
 
         Renderer renderer;
+
+        ImGui::CreateContext();
+        ImGui_ImplGlfwGL3_Init(window, true);
+        ImGui::StyleColorsDark();
+
         float r = 0.0f;
         float increement = 0.05f;
         /* Loop until the user closes the window */
@@ -112,8 +120,14 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
+            ImGui_ImplGlfwGL3_NewFrame();
+
+            glm::mat4 model = glm::translate(glm::mat4(1.f), translation);//For Model
+            glm::mat4 mvp = proj * view * model;
+
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+            shader.SetUniformMat4f("u_MVP", mvp);
             
             //Draw using renderer
             renderer.Draw(va,ib,shader);
@@ -122,6 +136,16 @@ int main(void)
             else if (r < 0.f)increement = 0.05f;
 
             r += increement;
+
+            {
+                ImGui::SliderFloat3("translation", &translation.x, 0.0f, 960.0f);        
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            }
+
+            ImGui::Render();
+            ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+
             /* Swap front and back buffers */
             GLCall(glfwSwapBuffers(window));
 
@@ -129,6 +153,9 @@ int main(void)
             GLCall(glfwPollEvents());
         }
     }
+
+    ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
