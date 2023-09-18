@@ -14,6 +14,9 @@
 #include"Shader.h"
 #include"Texture.h"
 
+#include"glm/glm.hpp"
+#include"glm/gtc/matrix_transform.hpp"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -75,10 +78,16 @@ int main(void)
 
         IndexBuffer ib(indices, 6);
 
+        //Fixing the projection of our window ny default it renders for 1x1 matrix but ours is 4x3
+        //Hence use projection matrix
+        //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);//As 4x3 window left = -2 : right = 2 : bottom = -1.5 : up = 1.5
+        glm::mat4 proj = glm::ortho(-4.0f, 4.0f, -3.f, 3.f, -1.0f, 1.0f);
+
         std::string filepath = "res/shaders/BasicShader.txt";
         Shader shader(filepath);
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.f);//Setting the value of fragment shader from CPU
+        shader.SetUniformMat4f("u_MVP", proj);
 
         std::string texPath = "res/textures/ChernoLogo.png";
         Texture texture(texPath);
@@ -172,4 +181,8 @@ SHADERS program running on GPU
   3.glBlendEquation(mode)
      mode = how we combine the src and dest
      Default value is GL_FUNC_ADD (i.e. just adds src and dest)
+
+  --Maths::
+  1.Matrices(for Transformations)
+  2.Vectors
 */
