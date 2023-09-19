@@ -20,6 +20,8 @@
 #include"imgui/imgui.h"
 #include"imgui/imgui_impl_glfw_gl3.h"
 
+#include"tests/TestClearColor.h"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -51,60 +53,8 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
-        float positions[] = {
-            -50.f, -50.f, 0.0f, 0.0f, //0 
-             50.f, -50.f, 1.0f, 0.0f, //1
-             50.f,  50.f, 1.0f, 1.0f, //2
-            -50.f,  50.f, 0.0f, 1.0f  //3
-        };
-
-        unsigned int indices[] = {
-            0,1,2,
-            2,3,0
-        };
-
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
-
-        unsigned int vao;
-        GLCall(glGenVertexArrays(1, &vao));
-        GLCall(glBindVertexArray(vao));
-
-        VertexArray va;
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-        
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-        layout.Push<float>(2);
-        va.AddBuffer(vb,layout);
-
-
-        IndexBuffer ib(indices, 6);
-
-        //Fixing the projection of our window ny default it renders for 1x1 matrix but ours is 4x3
-        //Hence use projection matrix
-        //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);//As 4x3 window left = -2 : right = 2 : bottom = -1.5 : up = 1.5
-        glm::mat4 proj = glm::ortho(0.f, 960.f, 0.f, 540.f, -1.0f, 1.0f);
-        glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));//For camera :: moving camera to right THUS moving object to left
-        //glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(200.f, 200.f, 0.f));//For Model
-        //glm::mat4 mvp = proj * view * model; //(Multiplied in reverse order becuase in OpenGL it is Column Major)
-        glm::vec3 translationA(200.f, 200.f, 0.f);
-        glm::vec3 translationB(400.f, 200.f, 0.f);
-
-        std::string filepath = "res/shaders/BasicShader.txt";
-        Shader shader(filepath);
-        shader.Bind();
-
-        std::string texPath = "res/textures/ChernoLogo.png";
-        Texture texture(texPath);
-        texture.Bind();
-        shader.SetUniform1i("u_Texture", 0);
-
-        //Unbind everything
-        va.Unbind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
 
         Renderer renderer;
 
@@ -112,43 +62,20 @@ int main(void)
         ImGui_ImplGlfwGL3_Init(window, true);
         ImGui::StyleColorsDark();
 
-        float r = 0.0f;
-        float increement = 0.05f;
+        test::TestClearColor test;
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
 
+            test.OnUpdate(0.f);
+            test.OnRender();
+
             ImGui_ImplGlfwGL3_NewFrame();
 
-            shader.Bind();
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.f), translationA);//For Model
-                glm::mat4 mvp = proj * view * model;
-                shader.SetUniformMat4f("u_MVP", mvp);
-                //Draw using renderer
-                renderer.Draw(va, ib, shader);
-            }          
-
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.f), translationB);//For Model
-                glm::mat4 mvp = proj * view * model;
-                shader.SetUniformMat4f("u_MVP", mvp);
-                //Draw using renderer
-                renderer.Draw(va, ib, shader);
-            }
-            if (r > 1.0f)increement = -0.05f;
-            else if (r < 0.f)increement = 0.05f;
-
-            r += increement;
-
-            {
-                ImGui::SliderFloat3("translationA", &translationA.x, 0.0f, 960.0f);
-                ImGui::SliderFloat3("translationB", &translationB.x, 0.0f, 960.0f);
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            }
+            test.OnImGuiRender();
 
             ImGui::Render();
             ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
