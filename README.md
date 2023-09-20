@@ -1,1 +1,1 @@
-# OpenGLTutorials
+# OpenGL
